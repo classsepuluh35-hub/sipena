@@ -273,8 +273,9 @@
     function adjustRoleAccess(user) {
       const menuRiwayatBtn = document.getElementById("menuRiwayatBtn");
       const inputNis = document.getElementById("inputNis");
+      const userRole = user.role ? user.role.trim().toLowerCase() : "";
 
-      if (user.role === "Siswa") {
+      if (userRole === "siswa") {
         // Sembunyikan tombol 'Lihat Daftar Catatan' khusus untuk Siswa
         if (menuRiwayatBtn) {
           menuRiwayatBtn.classList.add("hidden");
@@ -282,7 +283,7 @@
 
         // Set NIS otomatis sesuai username siswa & kunci input
         if (inputNis) {
-          inputNis.value = user.username;
+          inputNis.value = user.username || "";
           inputNis.readOnly = true;
           inputNis.classList.add("bg-slate-100");
         }
@@ -321,15 +322,24 @@
       const btnForm = document.getElementById("menuFormBtn");
       const btnRiwayat = document.getElementById("menuRiwayatBtn");
 
+      // Validasi keamanan: jika role = siswa, cegah akses tab riwayat
+      const storedUser = localStorage.getItem("sipena_user");
+      if (storedUser) {
+        const user = JSON.parse(storedUser);
+        if (user.role && user.role.trim().toLowerCase() === "siswa") {
+          tabName = 'form';
+        }
+      }
+
       if (tabName === 'form') {
-        formSection.classList.remove("hidden");
-        riwayatSection.classList.add("hidden");
-        btnForm.className = "px-4 py-2 font-medium text-sm rounded-lg bg-indigo-600 text-white";
-        if (btnRiwayat) btnRiwayat.className = "px-4 py-2 font-medium text-sm rounded-lg bg-slate-200 text-slate-700";
+        if (formSection) formSection.classList.remove("hidden");
+        if (riwayatSection) riwayatSection.classList.add("hidden");
+        if (btnForm) btnForm.className = "px-4 py-2 font-medium text-sm rounded-lg bg-indigo-600 text-white";
+        if (btnRiwayat) btnRiwayat.className = "px-4 py-2 font-medium text-sm rounded-lg bg-slate-200 text-slate-700 " + (btnRiwayat.classList.contains("hidden") ? "hidden" : "");
       } else {
-        formSection.classList.add("hidden");
-        riwayatSection.classList.remove("hidden");
-        btnForm.className = "px-4 py-2 font-medium text-sm rounded-lg bg-slate-200 text-slate-700";
+        if (formSection) formSection.classList.add("hidden");
+        if (riwayatSection) riwayatSection.classList.remove("hidden");
+        if (btnForm) btnForm.className = "px-4 py-2 font-medium text-sm rounded-lg bg-slate-200 text-slate-700";
         if (btnRiwayat) btnRiwayat.className = "px-4 py-2 font-medium text-sm rounded-lg bg-indigo-600 text-white";
         loadRiwayatData();
       }
