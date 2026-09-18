@@ -73,7 +73,7 @@
           class="px-4 py-2 font-medium text-sm rounded-lg bg-indigo-600 text-white">
           + Form Pencatatan
         </button>
-        <!-- Tombol ini otomatis disembunyikan HANYA jika role = Siswa -->
+        <!-- Tombol ini disembunyikan HANYA untuk role Siswa -->
         <button id="menuRiwayatBtn" onclick="switchTab('riwayat')" 
           class="px-4 py-2 font-medium text-sm rounded-lg bg-slate-200 text-slate-700">
           Lihat Daftar Catatan
@@ -273,7 +273,9 @@
     function adjustRoleAccess(user) {
       const menuRiwayatBtn = document.getElementById("menuRiwayatBtn");
       const inputNis = document.getElementById("inputNis");
-      const userRole = user.role ? user.role.trim().toLowerCase() : "";
+      
+      // Ambil role secara fleksibel (mengabaikan perbedaan huruf besar/kecil)
+      const userRole = (user && user.role) ? String(user.role).trim().toLowerCase() : "";
 
       if (userRole === "siswa") {
         // Sembunyikan tombol 'Lihat Daftar Catatan' khusus untuk Siswa
@@ -322,25 +324,54 @@
       const btnForm = document.getElementById("menuFormBtn");
       const btnRiwayat = document.getElementById("menuRiwayatBtn");
 
-      // Validasi keamanan: jika role = siswa, cegah akses tab riwayat
+      // Validasi keamanan tambahan berdasarkan Role dari LocalStorage
       const storedUser = localStorage.getItem("sipena_user");
+      let isSiswa = false;
       if (storedUser) {
-        const user = JSON.parse(storedUser);
-        if (user.role && user.role.trim().toLowerCase() === "siswa") {
-          tabName = 'form';
+        try {
+          const user = JSON.parse(storedUser);
+          if (user && user.role && String(user.role).trim().toLowerCase() === "siswa") {
+            isSiswa = true;
+          }
+        } catch(err) {
+          console.error(err);
+        }
+      }
+
+      // Jika role adalah Siswa, paksa pilihan tab selalu 'form' dan sembunyikan tombol
+      if (isSiswa) {
+        tabName = 'form';
+        if (btnRiwayat) {
+          btnRiwayat.classList.add("hidden");
         }
       }
 
       if (tabName === 'form') {
         if (formSection) formSection.classList.remove("hidden");
         if (riwayatSection) riwayatSection.classList.add("hidden");
-        if (btnForm) btnForm.className = "px-4 py-2 font-medium text-sm rounded-lg bg-indigo-600 text-white";
-        if (btnRiwayat) btnRiwayat.className = "px-4 py-2 font-medium text-sm rounded-lg bg-slate-200 text-slate-700 " + (btnRiwayat.classList.contains("hidden") ? "hidden" : "");
+        
+        // Mengatur styling aktif/non-aktif tanpa menimpa class 'hidden'
+        if (btnForm) {
+          btnForm.classList.add("bg-indigo-600", "text-white");
+          btnForm.classList.remove("bg-slate-200", "text-slate-700");
+        }
+        if (btnRiwayat) {
+          btnRiwayat.classList.add("bg-slate-200", "text-slate-700");
+          btnRiwayat.classList.remove("bg-indigo-600", "text-white");
+        }
       } else {
         if (formSection) formSection.classList.add("hidden");
         if (riwayatSection) riwayatSection.classList.remove("hidden");
-        if (btnForm) btnForm.className = "px-4 py-2 font-medium text-sm rounded-lg bg-slate-200 text-slate-700";
-        if (btnRiwayat) btnRiwayat.className = "px-4 py-2 font-medium text-sm rounded-lg bg-indigo-600 text-white";
+        
+        if (btnForm) {
+          btnForm.classList.add("bg-slate-200", "text-slate-700");
+          btnForm.classList.remove("bg-indigo-600", "text-white");
+        }
+        if (btnRiwayat) {
+          btnRiwayat.classList.add("bg-indigo-600", "text-white");
+          btnRiwayat.classList.remove("bg-slate-200", "text-slate-700");
+        }
+
         loadRiwayatData();
       }
     }
@@ -398,7 +429,7 @@
         const response = await fetch(API_URL);
         const data = await response.json();
 
-        if (data.length === 0) {
+        if (!data || data.length === 0) {
           container.innerHTML = `<p class="text-sm text-slate-500">Belum ada riwayat pelanggaran.</p>`;
           return;
         }
@@ -421,11 +452,11 @@
         data.forEach(row => {
           html += `
             <tr class="border-b hover:bg-slate-50">
-              <td class="p-3">${row.tanggal}</td>
-              <td class="p-3 font-mono text-xs">${row.nis}</td>
-              <td class="p-3">${row.kelas}</td>
-              <td class="p-3 font-medium">${row.jenis_pelanggaran}</td>
-              <td class="p-3"><span class="px-2 py-1 text-xs rounded ${row.kategori === 'Berat' ? 'bg-red-100 text-red-800' : row.kategori === 'Sedang' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}">${row.kategori}</span></td>
+              <td class="p-3">${row.tanggal || '-'}</td>
+              <td class="p-3 font-mono text-xs">${row.nis || '-'}</td>
+              <td class="p-3">${row.kelas || '-'}</td>
+              <td class="p-3 font-medium">${row.jenis_pelanggaran || '-'}</td>
+              <td class="p-3"><span class="px-2 py-1 text-xs rounded ${row.kategori === 'Berat' ? 'bg-red-100 text-red-800' : row.kategori === 'Sedang' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}">${row.kategori || 'Ringan'}</span></td>
               <td class="p-3">${row.tindak_lanjut || '-'}</td>
             </tr>
           `;
