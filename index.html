@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SiPena Siswa - Login & Dashboard</title>
-  <!-- Menggunakan CDN Tailwind CSS untuk kemudahan styling -->
+  <title>SiPena Siswa - Form Pencatatan Pelanggaran</title>
+  <!-- Menggunakan CDN Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-100 min-h-screen font-sans">
 
   <!-- ========================================== -->
-  <!-- 1. TAMPILAN FORM LOGIN                      -->
+  <!-- 1. TAMPILAN FORM LOGIN                     -->
   <!-- ========================================== -->
   <div id="loginSection" class="flex items-center justify-center min-h-screen p-4">
     <div class="bg-white p-8 rounded-xl shadow-md w-full max-w-md border border-slate-200">
@@ -44,7 +44,7 @@
   </div>
 
   <!-- ========================================== -->
-  <!-- 2. TAMPILAN DASHBOARD (UTAMA)               -->
+  <!-- 2. TAMPILAN DASHBOARD (UTAMA)              -->
   <!-- ========================================== -->
   <div id="dashboardSection" class="hidden min-h-screen">
     <!-- Navbar Top -->
@@ -65,21 +65,121 @@
     </nav>
 
     <!-- Content Area -->
-    <main class="p-6 max-w-7xl mx-auto">
-      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-        <h3 class="text-lg font-semibold text-slate-800 mb-2">Selamat Datang di Panel Utama</h3>
-        <p class="text-slate-600 text-sm">
-          Kamu berhasil login. Form pencatatan dan tabel riwayat pelanggaran dapat diletakkan di area ini.
-        </p>
+    <main class="p-6 max-w-7xl mx-auto space-y-6">
+      
+      <!-- NAVIGASI TAB MENU -->
+      <div class="flex gap-2 border-b pb-2">
+        <button id="menuFormBtn" onclick="switchTab('form')" 
+          class="px-4 py-2 font-medium text-sm rounded-lg bg-indigo-600 text-white">
+          + Form Pencatatan
+        </button>
+        <button id="menuRiwayatBtn" onclick="switchTab('riwayat')" 
+          class="px-4 py-2 font-medium text-sm rounded-lg bg-slate-200 text-slate-700">
+          Lihat Daftar Catatan
+        </button>
       </div>
+
+      <!-- SECTION 1: FORM PENCATATAN PELANGGARAN -->
+      <div id="sectionFormCatatan" class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+        <form id="formPelanggaran" onsubmit="handleSimpanPelanggaran(event)">
+          
+          <!-- Baris 1: Tanggal, Kelas, Siswa Terdaftar -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-600 mb-1">TANGGAL KEJADIAN <span class="text-red-500">*</span></label>
+              <input type="date" id="inputTanggal" required class="w-full p-2.5 border rounded-lg text-sm border-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-600 mb-1">PILIH KELAS <span class="text-red-500">*</span></label>
+              <select id="inputKelas" required class="w-full p-2.5 border rounded-lg text-sm border-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none">
+                <option value="">-- Pilih Kelas --</option>
+                <option value="X IPA 1">X IPA 1</option>
+                <option value="XI IPS 2">XI IPS 2</option>
+                <option value="XII MIPA 3">XII MIPA 3</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-600 mb-1">PILIH SISWA TERDAFTAR <span class="text-red-500">*</span></label>
+              <select id="inputSiswa" class="w-full p-2.5 border rounded-lg text-sm border-slate-300 bg-slate-50 text-slate-500 focus:ring-2 focus:ring-indigo-500 outline-none">
+                <option value="">-- Pilih Kelas Terlebih Dahulu --</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Baris 2: NIS/NISN, Jenis Pelanggaran Bawaan -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-600 mb-1">NIS / NISN <span class="text-red-500">*</span></label>
+              <input type="text" id="inputNis" required placeholder="Otomatis terisi..." class="w-full p-2.5 border rounded-lg text-sm border-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-600 mb-1">PILIH JENIS PELANGGARAN BAWAAN</label>
+              <select id="inputJenisBawaan" onchange="autoFillJenis()" class="w-full p-2.5 border rounded-lg text-sm border-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none">
+                <option value="">-- Ketik Manual atau Pilih Jenis --</option>
+                <option value="Terlambat masuk sekolah">Terlambat masuk sekolah</option>
+                <option value="Atribut tidak lengkap">Atribut tidak lengkap</option>
+                <option value="Tidak berseragam sesuai ketentuan">Tidak berseragam sesuai ketentuan</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Baris 3: Judul Pelanggaran, Kategori Pelanggaran -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div class="md:col-span-2">
+              <label class="block text-xs font-bold text-slate-600 mb-1">JUDUL / NAMA PELANGGARAN <span class="text-red-500">*</span></label>
+              <input type="text" id="inputJudul" required placeholder="Contoh: Terlambat masuk sekolah / Atribut tidak lengkap" class="w-full p-2.5 border rounded-lg text-sm border-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-600 mb-1">KATEGORI PELANGGARAN <span class="text-red-500">*</span></label>
+              <select id="inputKategori" required class="w-full p-2.5 border rounded-lg text-sm border-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none">
+                <option value="Ringan">🟢 Ringan</option>
+                <option value="Sedang">🟡 Sedang</option>
+                <option value="Berat">🔴 Berat</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Baris 4: Deskripsi Kronologi Kejadian -->
+          <div class="mb-4">
+            <label class="block text-xs font-bold text-slate-600 mb-1">DESKRIPSI KRONOLOGI KEJADIAN</label>
+            <textarea id="inputDeskripsi" rows="3" placeholder="Tuliskan catatan detail kronologi kejadian..." class="w-full p-2.5 border rounded-lg text-sm border-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none"></textarea>
+          </div>
+
+          <!-- Baris 5: Tindak Lanjut / Penanganan -->
+          <div class="mb-6">
+            <label class="block text-xs font-bold text-slate-600 mb-1">TINDAK LANJUT / PENANGANAN KOMDIS/GURU</label>
+            <textarea id="inputTindakLanjut" rows="3" placeholder="Contoh: Pembinaan lisan, penugasan khusus, atau pemanggilan orang tua..." class="w-full p-2.5 border rounded-lg text-sm border-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none"></textarea>
+          </div>
+
+          <!-- Tombol Aksi -->
+          <div class="flex justify-end gap-3">
+            <button type="reset" class="px-5 py-2.5 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition">
+              Reset Form
+            </button>
+            <button type="submit" id="btnSimpan" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+              Simpan Laporan Pelanggaran
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+      <!-- SECTION 2: RIWAYAT CATATAN (HANYA GURU/ADMIN) -->
+      <div id="sectionRiwayatCatatan" class="hidden bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+        <h3 class="text-lg font-bold text-slate-800 mb-4">Daftar Catatan Kedisiplinan</h3>
+        <div id="tabelCatatanContainer" class="overflow-x-auto">
+          <p class="text-sm text-slate-500">Memuat data catatan...</p>
+        </div>
+      </div>
+
     </main>
   </div>
 
   <!-- ========================================== -->
-  <!-- 3. LOGIKA JAVASCRIPT INTEGRASI              -->
+  <!-- 3. LOGIKA JAVASCRIPT INTEGRASI             -->
   <!-- ========================================== -->
   <script>
-    // Konfigurasi URL Google Apps Script milikmu
     const API_URL = "https://script.google.com/macros/s/AKfycbyGc3NKOj_FlFNx23VUIgDRDdGRqrptK7JUYLj5ZmC5iLV1AeZA3zr4vq2gMCrBySL73w/exec";
 
     /**
@@ -93,7 +193,6 @@
       const btnSubmit = document.getElementById("btnLoginSubmit");
       const alertBox = document.getElementById("loginAlert");
 
-      // Tampilkan status loading pada tombol
       btnSubmit.disabled = true;
       btnSubmit.innerText = "Memproses...";
       alertBox.classList.add("hidden");
@@ -111,14 +210,10 @@
         const result = await response.json();
 
         if (result.status === "success") {
-          // Simpan sesi user ke localStorage
           localStorage.setItem("sipena_user", JSON.stringify(result.user));
-          // Reset form input
           document.getElementById("loginForm").reset();
-          // Perbarui tampilan halaman
           checkAuthSession();
         } else {
-          // Tampilkan pesan kesalahan
           alertBox.innerText = result.message || "Login gagal!";
           alertBox.classList.remove("hidden");
         }
@@ -143,7 +238,7 @@
     }
 
     /**
-     * Mengecek status login dan mengatur Visibilitas UI
+     * Mengecek status login dan mengatur Visibilitas UI berdasarkan Role
      */
     function checkAuthSession() {
       const storedUser = localStorage.getItem("sipena_user");
@@ -153,21 +248,179 @@
       if (storedUser) {
         const user = JSON.parse(storedUser);
         
-        // Tampilkan Dashboard, Sembunyikan Login Form
         loginSection.classList.add("hidden");
         dashboardSection.classList.remove("hidden");
 
-        // Setel informasi nama dan role di Navbar
         document.getElementById("userDisplayName").innerText = user.nama;
         document.getElementById("userDisplayRole").innerText = "Role: " + user.role;
+
+        // Setel tanggal default hari ini pada form
+        document.getElementById("inputTanggal").valueAsDate = new Date();
+
+        // Penyesuaian Hak Akses Berdasarkan Role
+        adjustRoleAccess(user);
+
       } else {
-        // Tampilkan Login Form, Sembunyikan Dashboard
         loginSection.classList.remove("hidden");
         dashboardSection.classList.add("hidden");
       }
     }
 
-    // Jalankan pemeriksaan sesi saat halaman pertama kali dimuat
+    /**
+     * Pengaturan Tampilan & Hak Akses Berdasarkan Role
+     */
+    function adjustRoleAccess(user) {
+      const menuRiwayatBtn = document.getElementById("menuRiwayatBtn");
+      const inputNis = document.getElementById("inputNis");
+
+      if (user.role === "Siswa") {
+        // Hide tombol riwayat untuk siswa
+        if (menuRiwayatBtn) menuRiwayatBtn.classList.add("hidden");
+
+        // Set NIS otomatis & kunci input
+        if (inputNis) {
+          inputNis.value = user.username;
+          inputNis.readOnly = true;
+          inputNis.classList.add("bg-slate-100");
+        }
+        switchTab('form');
+      } else {
+        // Tampilkan tombol riwayat untuk Guru/Admin
+        if (menuRiwayatBtn) menuRiwayatBtn.classList.remove("hidden");
+        if (inputNis) {
+          inputNis.readOnly = false;
+          inputNis.classList.remove("bg-slate-100");
+        }
+        switchTab('form');
+      }
+    }
+
+    /**
+     * Mengisi otomatis judul dari dropdown jenis bawaan
+     */
+    function autoFillJenis() {
+      const selected = document.getElementById("inputJenisBawaan").value;
+      if (selected) {
+        document.getElementById("inputJudul").value = selected;
+      }
+    }
+
+    /**
+     * Perpindahan Tab Antara Form dan Riwayat
+     */
+    function switchTab(tabName) {
+      const formSection = document.getElementById("sectionFormCatatan");
+      const riwayatSection = document.getElementById("sectionRiwayatCatatan");
+      const btnForm = document.getElementById("menuFormBtn");
+      const btnRiwayat = document.getElementById("menuRiwayatBtn");
+
+      if (tabName === 'form') {
+        formSection.classList.remove("hidden");
+        riwayatSection.classList.add("hidden");
+        btnForm.className = "px-4 py-2 font-medium text-sm rounded-lg bg-indigo-600 text-white";
+        if (btnRiwayat) btnRiwayat.className = "px-4 py-2 font-medium text-sm rounded-lg bg-slate-200 text-slate-700";
+      } else {
+        formSection.classList.add("hidden");
+        riwayatSection.classList.remove("hidden");
+        btnForm.className = "px-4 py-2 font-medium text-sm rounded-lg bg-slate-200 text-slate-700";
+        if (btnRiwayat) btnRiwayat.className = "px-4 py-2 font-medium text-sm rounded-lg bg-indigo-600 text-white";
+        loadRiwayatData();
+      }
+    }
+
+    /**
+     * Menyimpan Data Pelanggaran ke Apps Script
+     */
+    async function handleSimpanPelanggaran(e) {
+      e.preventDefault();
+      const btnSimpan = document.getElementById("btnSimpan");
+      btnSimpan.disabled = true;
+      btnSimpan.innerText = "Menyimpan...";
+
+      const payload = {
+        action: "save",
+        tanggal: document.getElementById("inputTanggal").value,
+        kelas: document.getElementById("inputKelas").value,
+        nis: document.getElementById("inputNis").value,
+        nama_siswa: document.getElementById("inputSiswa").value || document.getElementById("inputNis").value,
+        jenis_pelanggaran: document.getElementById("inputJudul").value,
+        kategori: document.getElementById("inputKategori").value,
+        deskripsi: document.getElementById("inputDeskripsi").value,
+        tindak_lanjut: document.getElementById("inputTindakLanjut").value
+      };
+
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+
+        if (result.status === "success") {
+          alert("Laporan pelanggaran berhasil disimpan!");
+          document.getElementById("formPelanggaran").reset();
+          checkAuthSession(); // Perbarui status form
+        } else {
+          alert("Gagal menyimpan: " + result.message);
+        }
+      } catch (error) {
+        console.error("Error simpan:", error);
+        alert("Terjadi kesalahan jaringan saat menyimpan!");
+      } finally {
+        btnSimpan.disabled = false;
+        btnSimpan.innerText = "Simpan Laporan Pelanggaran";
+      }
+    }
+
+    /**
+     * Memuat Data Riwayat untuk Guru
+     */
+    async function loadRiwayatData() {
+      const container = document.getElementById("tabelCatatanContainer");
+      try {
+        const response = await fetch(API_URL);
+        const data = await response.json();
+
+        if (data.length === 0) {
+          container.innerHTML = `<p class="text-sm text-slate-500">Belum ada riwayat pelanggaran.</p>`;
+          return;
+        }
+
+        let html = `
+          <table class="w-full text-left text-sm border-collapse">
+            <thead>
+              <tr class="bg-slate-100 border-b">
+                <th class="p-3">Tanggal</th>
+                <th class="p-3">NIS</th>
+                <th class="p-3">Kelas</th>
+                <th class="p-3">Pelanggaran</th>
+                <th class="p-3">Kategori</th>
+                <th class="p-3">Tindak Lanjut</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+
+        data.forEach(row => {
+          html += `
+            <tr class="border-b hover:bg-slate-50">
+              <td class="p-3">${row.tanggal}</td>
+              <td class="p-3 font-mono text-xs">${row.nis}</td>
+              <td class="p-3">${row.kelas}</td>
+              <td class="p-3 font-medium">${row.jenis_pelanggaran}</td>
+              <td class="p-3"><span class="px-2 py-1 text-xs rounded ${row.kategori === 'Berat' ? 'bg-red-100 text-red-800' : row.kategori === 'Sedang' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}">${row.kategori}</span></td>
+              <td class="p-3">${row.tindak_lanjut || '-'}</td>
+            </tr>
+          `;
+        });
+
+        html += `</tbody></table>`;
+        container.innerHTML = html;
+      } catch (error) {
+        container.innerHTML = `<p class="text-sm text-red-500">Gagal memuat data riwayat.</p>`;
+      }
+    }
+
     document.addEventListener("DOMContentLoaded", checkAuthSession);
   </script>
 </body>
