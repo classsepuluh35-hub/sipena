@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SiPena Siswa - Form Pencatatan Pelanggaran</title>
+  <title>SiPena Siswa - Form & Riwayat Pencatatan Pelanggaran</title>
   <!-- Menggunakan CDN Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -73,7 +73,7 @@
           class="px-4 py-2 font-medium text-sm rounded-lg bg-indigo-600 text-white">
           + Form Pencatatan
         </button>
-        <!-- Tombol ini otomatis disembunyikan jika role = Siswa -->
+        <!-- Tombol ini otomatis disembunyikan HANYA jika role = Siswa -->
         <button id="menuRiwayatBtn" onclick="switchTab('riwayat')" 
           class="px-4 py-2 font-medium text-sm rounded-lg bg-slate-200 text-slate-700">
           Lihat Daftar Catatan
@@ -133,9 +133,9 @@
             <div>
               <label class="block text-xs font-bold text-slate-600 mb-1">KATEGORI PELANGGARAN <span class="text-red-500">*</span></label>
               <select id="inputKategori" required class="w-full p-2.5 border rounded-lg text-sm border-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none">
-                <option value="Ringan">🟢 Ringan</option>
-                <option value="Sedang">🟡 Sedang</option>
-                <option value="Berat">🔴 Berat</option>
+                <option value="Ringan">⚠️ Ringan</option>
+                <option value="Sedang">📙 Sedang</option>
+                <option value="Berat">🚨 Berat</option>
               </select>
             </div>
           </div>
@@ -166,7 +166,7 @@
         </form>
       </div>
 
-      <!-- SECTION 2: RIWAYAT CATATAN (HANYA GURU/ADMIN) -->
+      <!-- SECTION 2: RIWAYAT CATATAN (HANYA GURU & ADMIN) -->
       <div id="sectionRiwayatCatatan" class="hidden bg-white p-6 rounded-xl shadow-sm border border-slate-200">
         <h3 class="text-lg font-bold text-slate-800 mb-4">Daftar Catatan Kedisiplinan</h3>
         <div id="tabelCatatanContainer" class="overflow-x-auto">
@@ -275,7 +275,7 @@
       const inputNis = document.getElementById("inputNis");
 
       if (user.role === "Siswa") {
-        // Hapus/Sembunyikan tombol 'Lihat Daftar Catatan' khusus untuk Siswa
+        // Sembunyikan tombol 'Lihat Daftar Catatan' khusus untuk Siswa
         if (menuRiwayatBtn) {
           menuRiwayatBtn.classList.add("hidden");
         }
@@ -287,10 +287,10 @@
           inputNis.classList.add("bg-slate-100");
         }
         
-        // Arahkan otomatis ke form input
+        // Pastikan siswa selalu berada di tampilan form
         switchTab('form');
       } else {
-        // Tampilkan tombol riwayat untuk Guru/Admin
+        // Tampilkan tombol riwayat untuk Guru & Admin
         if (menuRiwayatBtn) {
           menuRiwayatBtn.classList.remove("hidden");
         }
@@ -380,7 +380,7 @@
     }
 
     /**
-     * Memuat Data Riwayat untuk Guru
+     * Memuat Data Riwayat untuk Guru dan Admin
      */
     async function loadRiwayatData() {
       const container = document.getElementById("tabelCatatanContainer");
@@ -432,3 +432,10 @@
   </script>
 </body>
 </html>
+```
+
+### Ringkasan Penyesuaian:
+1. **Mengembalikan Menu & Tabel Riwayat**: Tombol tab navigasi dan kontainer tabel riwayat `sectionRiwayatCatatan` dipasang kembali.
+2. **Kondisi Khusus Role**:
+   * **Role `Siswa`**: Tombol "Lihat Daftar Catatan" disembunyikan (`hidden`), NIS dikunci otomatis.
+   * **Role `Guru` & `Admin`**: Tombol "Lihat Daftar Catatan" dimunculkan kembali dan fungsi `loadRiwayatData()` dapat diakses dengan normal.
