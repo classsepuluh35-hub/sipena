@@ -67,12 +67,13 @@
     <!-- Content Area -->
     <main class="p-6 max-w-7xl mx-auto space-y-6">
       
-      <!-- NAVIGASI TAB MENU -->
+      <!-- NAVIGASI TAB MENU (Dikontrol Berdasarkan Role) -->
       <div class="flex gap-2 border-b pb-2">
         <button id="menuFormBtn" onclick="switchTab('form')" 
           class="px-4 py-2 font-medium text-sm rounded-lg bg-indigo-600 text-white">
           + Form Pencatatan
         </button>
+        <!-- Tombol ini otomatis disembunyikan jika role = Siswa -->
         <button id="menuRiwayatBtn" onclick="switchTab('riwayat')" 
           class="px-4 py-2 font-medium text-sm rounded-lg bg-slate-200 text-slate-700">
           Lihat Daftar Catatan
@@ -274,19 +275,25 @@
       const inputNis = document.getElementById("inputNis");
 
       if (user.role === "Siswa") {
-        // Hide tombol riwayat untuk siswa
-        if (menuRiwayatBtn) menuRiwayatBtn.classList.add("hidden");
+        // Hapus/Sembunyikan tombol 'Lihat Daftar Catatan' khusus untuk Siswa
+        if (menuRiwayatBtn) {
+          menuRiwayatBtn.classList.add("hidden");
+        }
 
-        // Set NIS otomatis & kunci input
+        // Set NIS otomatis sesuai username siswa & kunci input
         if (inputNis) {
           inputNis.value = user.username;
           inputNis.readOnly = true;
           inputNis.classList.add("bg-slate-100");
         }
+        
+        // Arahkan otomatis ke form input
         switchTab('form');
       } else {
         // Tampilkan tombol riwayat untuk Guru/Admin
-        if (menuRiwayatBtn) menuRiwayatBtn.classList.remove("hidden");
+        if (menuRiwayatBtn) {
+          menuRiwayatBtn.classList.remove("hidden");
+        }
         if (inputNis) {
           inputNis.readOnly = false;
           inputNis.classList.remove("bg-slate-100");
